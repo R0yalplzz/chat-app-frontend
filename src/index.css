@@ -1,0 +1,225 @@
+/* * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  .signup-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  
+  .signup-form {
+    background-color: white;
+    padding: 40px;
+    width: 400px;
+    border-radius: 15px;
+    box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.2);
+  }
+  
+  .signup-form h2 {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  .subtitle {
+    text-align: center;
+    color: gray;
+    margin-bottom: 25px;
+  }
+  
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 18px;
+  }
+  
+  .input-group label {
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #444;
+  }
+  
+  .input-group input {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: 0.3s;
+  }
+  
+  .input-group input:focus {
+    border-color: #7c3aed;
+    outline: none;
+    box-shadow: 0px 0px 8px rgba(124, 58, 237, 0.4);
+  }
+  
+  .signup-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #7c3aed;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .signup-btn:hover {
+    background-color: #5b21b6;
+  }
+  
+  .login-link {
+    margin-top: 20px;
+    text-align: center;
+  }
+  
+  .login-link a {
+    text-decoration: none;
+    color: #7c3aed;
+    font-weight: bold;
+  }
+  
+  .login-link a:hover {
+    text-decoration: underline;
+  }
+
+   */
+
+   * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  .signup-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  
+    /* Background Image */
+    background-image: url("/image/chat-app.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  
+    font-family: Arial, Helvetica, sans-serif;
+    position: relative;
+  }
+  
+  /* Dark overlay */
+  .signup-container::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+  
+  .signup-form {
+    position: relative;
+    z-index: 1;
+  
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+  
+    padding: 40px;
+    width: 400px;
+    border-radius: 18px;
+  
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  
+    box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.3);
+  }
+  
+  .signup-form h2 {
+    text-align: center;
+    margin-bottom: 10px;
+    color: white;
+    font-size: 30px;
+  }
+  
+  .subtitle {
+    text-align: center;
+    color: #ddd;
+    margin-bottom: 25px;
+  }
+  
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 18px;
+  }
+  
+  .input-group label {
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: white;
+  }
+  
+  .input-group input {
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+  
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+  
+    outline: none;
+  }
+  
+  .input-group input::placeholder {
+    color: #ddd;
+  }
+  
+  .input-group input:focus {
+    border: 1px solid #4facfe;
+    box-shadow: 0px 0px 8px rgba(79, 172, 254, 0.6);
+  }
+  
+  .signup-btn {
+    width: 100%;
+    padding: 12px;
+  
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+  
+    color: white;
+    border: none;
+    border-radius: 8px;
+  
+    font-size: 16px;
+    font-weight: bold;
+  
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .signup-btn:hover {
+    transform: scale(1.03);
+  }
+  
+  .login-link {
+    margin-top: 20px;
+    text-align: center;
+  }
+  
+  .login-link p {
+    color: white;
+  }
+  
+  .login-link a {
+    text-decoration: none;
+    color: #4facfe;
+    font-weight: bold;
+  }
+  
+  .login-link a:hover {
+    text-decoration: underline;
+  }
