@@ -1,0 +1,3 @@
+First we should make store folder and add store.js file in it
+Wrap main.jsx file with <Provider></Provider>
+make feature folder and add slice.js file
