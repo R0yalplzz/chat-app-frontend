@@ -3,11 +3,14 @@ import { hideLoader, showLoader } from "../features/loaderSlice";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { createNewMessage, getAllMessages } from "./../apiCall/message";
+import { clearUnreadMessageCount } from "../apiCall/chat";
 import moment from "moment";
 
 function ChatArea() {
   const dispatch = useDispatch();
-  const { selectedChat, user, allUsers } = useSelector((state) => state.user);
+  const { selectedChat, user, allUsers, allChats } = useSelector(
+    (state) => state.user,
+  );
   const [message, setMessage] = useState("");
   const [allMessages, setAllMessages] = useState([]);
 
@@ -70,6 +73,26 @@ function ChatArea() {
     }
   };
 
+  const clearUnreadMessages = async () => {
+    try {
+      dispatch(showLoader());
+      const response = await clearUnreadMessageCount(selectedChat.id);
+      dispatch(hideLoader());
+
+      if (response.success) {
+        allChats.map((chat) => {
+          if (chat.id === selectedChat.id) {
+            return response.data;
+          }
+          return chat;
+        });
+      }
+    } catch (error) {
+      dispatch(hideLoader());
+      toast.error(error.message);
+    }
+  };
+
   function formatName(user) {
     let fname =
       user.firstName.at(0).toUpperCase() +
@@ -83,8 +106,10 @@ function ChatArea() {
   useEffect(() => {
     if (selectedChat) {
       getMessages();
+      clearUnreadMessages();
     }
   }, [selectedChat]);
+
   return (
     <>
       {selectedChat && (
