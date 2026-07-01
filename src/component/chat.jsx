@@ -3,13 +3,19 @@ import { hideLoader, showLoader } from "../features/loaderSlice";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { createNewMessage, getAllMessages } from "./../apiCall/message";
+import { clearUnreadMessageCount, getAllChats } from "./../apiCall/chat";
 import moment from "moment";
 
 function ChatArea() {
   const dispatch = useDispatch();
-  const { selectedChat, user, allUsers } = useSelector((state) => state.user);
+  const { selectedChat, user, allUsers, allChats } = useSelector(
+    (state) => state.user,
+  );
   const [message, setMessage] = useState("");
   const [allMessages, setAllMessages] = useState([]);
+
+  console.log("allMessages:", allMessages);
+  console.log("Is array?", Array.isArray(allMessages));
 
   if (!selectedChat) {
     return <div>Select a chat</div>;
@@ -70,6 +76,28 @@ function ChatArea() {
     }
   };
 
+  const clearUnreadMessages = async () => {
+    try {
+      dispatch(showLoader());
+
+      const response = await clearUnreadMessageCount(selectedChat.id);
+
+      dispatch(hideLoader());
+
+      if (response.success) {
+        allChats.map((chat) => {
+          if (chat.id === selectedChat.id) {
+            return response.data;
+          }
+          return chat;
+        });
+      }
+    } catch (error) {
+      dispatch(hideLoader());
+      toast.error(error.message);
+    }
+  };
+
   function formatName(user) {
     let fname =
       user.firstName.at(0).toUpperCase() +
@@ -81,8 +109,9 @@ function ChatArea() {
   }
 
   useEffect(() => {
-    if (selectedChat) {
-      getMessages();
+    getMessages();
+    if (selectedChat.lastMessage?.sender !== user.id) {
+      clearUnreadMessages();
     }
   }, [selectedChat]);
   return (
@@ -123,6 +152,13 @@ function ChatArea() {
                       }
                     >
                       {formattime(msg.createdAt)}
+                      {isCurrentUserSender && msg.read && (
+                        <i
+                          className="fa fa-check-circle"
+                          aria-hidden="true"
+                          style={{ color: "#e74c3c" }}
+                        ></i>
+                      )}
                     </div>
                   </div>
                 </div>
