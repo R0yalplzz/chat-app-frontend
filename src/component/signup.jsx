@@ -42,7 +42,6 @@ const SignUp = () => {
         data: data,
       });
       dispatch(hideLoader());
-      console.log(result);
       toast.success("A verification link has been sent to your email.");
 
       setFirstName("");

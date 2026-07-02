@@ -14,17 +14,11 @@ function ChatArea() {
   const [message, setMessage] = useState("");
   const [allMessages, setAllMessages] = useState([]);
 
-  console.log("allMessages:", allMessages);
-  console.log("Is array?", Array.isArray(allMessages));
-
   if (!selectedChat) {
     return <div>Select a chat</div>;
   }
 
-  const selectedUserId = selectedChat.members.find(
-    (member) => member !== user.id,
-  );
-  const selectedUser = allUsers.find((u) => u.id === selectedUserId);
+  const selectedUser = selectedChat.members.find((u) => u.id !== user.id);
 
   const sendMessage = async () => {
     try {
@@ -98,7 +92,7 @@ function ChatArea() {
     }
   };
 
-  function formatName(user) {
+  function formatName(user) { 
     let fname =
       user.firstName.at(0).toUpperCase() +
       user.firstName.slice(1).toLowerCase();
@@ -107,10 +101,9 @@ function ChatArea() {
       user.lastName.at(0).toUpperCase() + user.lastName.slice(1).toLowerCase();
     return fname + " " + lname;
   }
-
   useEffect(() => {
     getMessages();
-    if (selectedChat.lastMessage?.sender !== user.id) {
+    if (selectedChat?.lastMessage?.sender !== user.id) {
       clearUnreadMessages();
     }
   }, [selectedChat]);
