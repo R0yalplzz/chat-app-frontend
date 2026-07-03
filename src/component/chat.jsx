@@ -5,8 +5,9 @@ import { toast } from "react-toastify";
 import { createNewMessage, getAllMessages } from "./../apiCall/message";
 import { clearUnreadMessageCount, getAllChats } from "./../apiCall/chat";
 import moment from "moment";
+import { store } from "../store/store";
 
-function ChatArea() {
+function ChatArea({ socket }) {
   const dispatch = useDispatch();
   const { selectedChat, user, allUsers, allChats } = useSelector(
     (state) => state.user,
@@ -27,16 +28,19 @@ function ChatArea() {
         sender: user.id,
         text: message,
       };
-      dispatch(showLoader());
-      const response = await createNewMessage(newMessage);
 
-      dispatch(hideLoader());
+      socket.emit("send-message", {
+        ...newMessage,
+        members: selectedChat.members.map((m) => m.id),
+        read: false,
+        createdAt: moment().format("DD-MM-YYYY HH:mm:ss"),
+      });
+      const response = await createNewMessage(newMessage);
       if (response.success) {
         setMessage("");
         getMessages();
       }
     } catch (error) {
-      dispatch(hideLoader());
       toast.error(error.message);
     }
   };
@@ -92,7 +96,7 @@ function ChatArea() {
     }
   };
 
-  function formatName(user) { 
+  function formatName(user) {
     let fname =
       user.firstName.at(0).toUpperCase() +
       user.firstName.slice(1).toLowerCase();
@@ -106,14 +110,25 @@ function ChatArea() {
     if (selectedChat?.lastMessage?.sender !== user.id) {
       clearUnreadMessages();
     }
+    socket.off("receive-message").on("receive-message", (data) => {
+      const selectedChat = store.getState().userSlice.selectedChat;
+      if (selectedChat.id === data.chatId) {
+        setAllMessages((prevmsg) => [...prevmsg, data]);
+      }
+    });
   }, [selectedChat]);
+
+  useEffect(() => {
+    const msgContainer = document.getElementById("main-chat-area");
+    msgContainer.scrollTop = msgContainer.scrollHeight;
+  }, [allMessages]);
   return (
     <>
       {selectedChat && (
         <div className="app-chat-area">
           <div className="app-chat-area-header">{formatName(selectedUser)}</div>
 
-          <div className="main-chat-area">
+          <div className="main-chat-area" id="main-chat-area">
             {allMessages.map((msg) => {
               const isCurrentUserSender = msg.sender === user.id;
 
