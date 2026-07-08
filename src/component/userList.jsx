@@ -4,8 +4,10 @@ import { createNewChat } from "../apiCall/chat";
 import { hideLoader, showLoader } from "../features/loaderSlice";
 import { setAllChats, setSelectedChat } from "../features/userSlice";
 import moment from "moment";
+import { store } from "../store/store";
+import { useEffect } from "react";
 
-function UsersList({ searchKey }) {
+function UsersList({ searchKey, socket }) {
   const {
     allUsers = [],
     allChats = [],
@@ -94,6 +96,33 @@ function UsersList({ searchKey }) {
     return fname + " " + lname;
   }
 
+  useEffect(() => {
+    socket.on("receive-message", (message) => {
+      const selectedChat = store.getState().user.selectedChat;
+      let allChats = store.getState().user.allChats;
+
+      if (selectedChat?.id !== message.chatId) {
+        const updatechats = allChats.map((chat) => {
+          if (chat.id === message.chatId) {
+            return {
+              ...chat,
+              unreadMessageCount: (chat?.unreadMessageCount || 0) + 1,
+              lastMessage: message,
+            };
+          }
+          return chat;
+        });
+        allChats = updatechats;
+      }
+      const latestChat = allChats.find((chat) => chat.id === message.chatId);
+
+      const otherChats = allChats.filter((chat) => chat.id !== message.chatId);
+
+      allChats = [latestChat, ...otherChats];
+      dispatch(setAllChats(allChats));
+    });
+  }, []);
+
   const getUnreadMessageCount = (userId) => {
     const chat = allChats.find((chat) =>
       chat?.members.some((m) => m.id === userId),
@@ -104,7 +133,7 @@ function UsersList({ searchKey }) {
       chat.lastMessage?.sender !== currentUser.id
     ) {
       return (
-        <div className="unread-message-count"> {chat.unreadMessageCount}</div>
+        <div className="unread-message-counter"> {chat.unreadMessageCount}</div>
       );
     } else {
       return "";

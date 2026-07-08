@@ -18,7 +18,7 @@ function Home() {
     <div className="home-page">
       <Header></Header>
       <div className="main-content">
-        <SideBar></SideBar>
+        <SideBar socket={socket}></SideBar>
         {selectedChat && <ChatArea socket={socket}></ChatArea>}
       </div>
     </div>

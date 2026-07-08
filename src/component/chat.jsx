@@ -14,6 +14,7 @@ function ChatArea({ socket }) {
   );
   const [message, setMessage] = useState("");
   const [allMessages, setAllMessages] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
 
   if (!selectedChat) {
     return <div>Select a chat</div>;
@@ -33,7 +34,7 @@ function ChatArea({ socket }) {
         ...newMessage,
         members: selectedChat.members.map((m) => m.id),
         read: false,
-        createdAt: moment().format("DD-MM-YYYY HH:mm:ss"),
+        createdAt: moment().format("YYY-MM-DD HH:mm:ss"),
       });
       const response = await createNewMessage(newMessage);
       if (response.success) {
@@ -76,11 +77,12 @@ function ChatArea({ socket }) {
 
   const clearUnreadMessages = async () => {
     try {
-      dispatch(showLoader());
+      socket.emit("clear-unread-messages", {
+        chatId: selectedChat.id,
+        members: selectedChat.members.map((m) => m.id),
+      });
 
       const response = await clearUnreadMessageCount(selectedChat.id);
-
-      dispatch(hideLoader());
 
       if (response.success) {
         allChats.map((chat) => {
@@ -91,7 +93,6 @@ function ChatArea({ socket }) {
         });
       }
     } catch (error) {
-      dispatch(hideLoader());
       toast.error(error.message);
     }
   };
@@ -110,10 +111,47 @@ function ChatArea({ socket }) {
     if (selectedChat?.lastMessage?.sender !== user.id) {
       clearUnreadMessages();
     }
-    socket.off("receive-message").on("receive-message", (data) => {
-      const selectedChat = store.getState().userSlice.selectedChat;
+    socket.on("receive-message", (message) => {
+      const selectedChat = store.getState().user.selectedChat;
+      if (selectedChat.id === message.chatId) {
+        setAllMessages((prevmsg) => [...prevmsg, message]);
+      }
+      if (selectedChat.id === message.chatId && message.sender !== user.id) {
+        clearUnreadMessages();
+      }
+    });
+
+    socket.on("message-count-cleared", (data) => {
+      const selectedChat = store.getState().user.selectedChat;
+      const allChats = store.getState().user.allChats;
       if (selectedChat.id === data.chatId) {
-        setAllMessages((prevmsg) => [...prevmsg, data]);
+        //Updating unread message count in chat object
+        const updatedChats = allChats.map((chat) => {
+          if (chat.id === data.chatId) {
+            return {
+              ...chat,
+              unreadMessageCount: 0,
+            };
+          }
+          return chat;
+        });
+        dispatch(setAllChats(updatedChats));
+        //updating read property in message object
+
+        setAllMessages((prevMsgs) => {
+          return prevMsgs.map((msg) => {
+            return { ...msg, read: true };
+          });
+        });
+      }
+    });
+
+    socket.on("started-typing", (data) => {
+      if (selectedChat.id === data.chatId && data.sender !== user.id) {
+        setIsTyping(true);
+        setTimeout(() => {
+          setIsTyping(false);
+        }, 2000);
       }
     });
   }, [selectedChat]);
@@ -121,7 +159,7 @@ function ChatArea({ socket }) {
   useEffect(() => {
     const msgContainer = document.getElementById("main-chat-area");
     msgContainer.scrollTop = msgContainer.scrollHeight;
-  }, [allMessages]);
+  }, [allMessages, isTyping]);
   return (
     <>
       {selectedChat && (
@@ -172,6 +210,9 @@ function ChatArea({ socket }) {
                 </div>
               );
             })}
+            <div className="typing-indicator">
+              {isTyping && <i>typing...</i>}
+            </div>
           </div>
 
           <div className="send-message-div">
@@ -182,6 +223,11 @@ function ChatArea({ socket }) {
               value={message}
               onChange={(e) => {
                 setMessage(e.target.value);
+                socket.emit("user-typing", {
+                  chatId: selectedChat.id,
+                  members: selectedChat.members.map((m) => m.id),
+                  sender: user.id,
+                });
               }}
             />
             <button
