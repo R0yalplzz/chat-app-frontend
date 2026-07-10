@@ -1,15 +1,17 @@
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
-  const { user } = useSelector((state) => state.user); // ← Fixed this line
-  // console.log(user);
+  const { user } = useSelector((state) => state.user);
+  const navigate = useNavigate();
   const getFullName = () => {
     let fname =
       user?.firstName.at(0).toUpperCase() +
       user?.firstName.slice(1).toLowerCase();
 
     let lname =
-      user?.lastName.at(0).toUpperCase() + user?.lastName.slice(1).toLowerCase();
+      user?.lastName.at(0).toUpperCase() +
+      user?.lastName.slice(1).toLowerCase();
     return fname + " " + lname;
   };
 
@@ -22,11 +24,11 @@ const Header = () => {
   //     .join("")
   //     .toUpperCase();
   // };
-  const getInitials = () => {
+  function getInitials() {
     let f = user?.firstName?.toUpperCase()[0];
     let l = user?.lastName?.toUpperCase()[0];
     return f + l;
-  };
+  }
   return (
     <div className="app-header">
       <div className="app-logo">
@@ -35,7 +37,14 @@ const Header = () => {
       </div>
       <div className="app-user-profile">
         <div className="logged-user-name">{getFullName()}</div>
-        <div className="logged-user-profile-pic">{getInitials() || null}</div>
+        <div
+          className="logged-user-profile-pic"
+          onClick={() => {
+            navigate("/profile");
+          }}
+        >
+          {getInitials() || null}
+        </div>
       </div>
     </div>
   );

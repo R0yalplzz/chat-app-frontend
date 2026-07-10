@@ -7,7 +7,7 @@ import moment from "moment";
 import { store } from "../store/store";
 import { useEffect } from "react";
 
-function UsersList({ searchKey, socket }) {
+function UsersList({ searchKey, socket, onlineUser }) {
   const {
     allUsers = [],
     allChats = [],
@@ -169,24 +169,32 @@ function UsersList({ searchKey, socket }) {
           className={IsSelectedChat(user) ? "selected-user" : "filtered-user"}
         >
           <div className="filter-user-display">
-            {user.profilePic ? (
+            {user.profilePic && (
               <img
                 src={user.profilePic}
-                alt="Profile"
+                alt="Profile Pic"
                 className="user-profile-image"
+                style={
+                  onlineUser.includes(user.id)
+                    ? { border: "3px solid #82e0aa" }
+                    : {}
+                }
               />
-            ) : (
+            )}
+            {!user.profilePic && (
               <div
-                className={
-                  IsSelectedChat(user)
-                    ? "user-selected-avatar"
-                    : "user-default-avatar"
+                className="user-default-avatar"
+                style={
+                  onlineUser.includes(user.id)
+                    ? { border: "3px solid #82e0aa" }
+                    : {}
                 }
               >
-                {user.firstName.charAt(0).toUpperCase()}
-                {user.lastName.charAt(0).toUpperCase()}
+                {user.firstName.charAt(0).toUpperCase() +
+                  user.lastName.charAt(0).toUpperCase()}
               </div>
             )}
+
             <div className="filter-user-details">
               <div className="user-display-name">{formatName(user)}</div>
               <div className="user-display-email">

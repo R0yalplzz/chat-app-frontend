@@ -6,6 +6,7 @@ import { createNewMessage, getAllMessages } from "./../apiCall/message";
 import { clearUnreadMessageCount, getAllChats } from "./../apiCall/chat";
 import moment from "moment";
 import { store } from "../store/store";
+import EmojiPicker from "emoji-picker-react";
 
 function ChatArea({ socket }) {
   const dispatch = useDispatch();
@@ -15,6 +16,7 @@ function ChatArea({ socket }) {
   const [message, setMessage] = useState("");
   const [allMessages, setAllMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   if (!selectedChat) {
     return <div>Select a chat</div>;
@@ -39,6 +41,7 @@ function ChatArea({ socket }) {
       const response = await createNewMessage(newMessage);
       if (response.success) {
         setMessage("");
+        setShowEmojiPicker(false);
         getMessages();
       }
     } catch (error) {
@@ -214,6 +217,13 @@ function ChatArea({ socket }) {
               {isTyping && <i>typing...</i>}
             </div>
           </div>
+          {showEmojiPicker && (
+            <div>
+              <EmojiPicker
+                onEmojiClick={(e) => setMessage(message + e.emoji)}
+              ></EmojiPicker>
+            </div>
+          )}
 
           <div className="send-message-div">
             <input
@@ -230,6 +240,14 @@ function ChatArea({ socket }) {
                 });
               }}
             />
+            <button
+              className="fa-regular fa-face-smile send-emoji-btn"
+              aria-hidden="true"
+              onClick={() => {
+                setShowEmojiPicker(!showEmojiPicker);
+              }}
+            ></button>
+
             <button
               className="fa fa-paper-plane send-message-btn"
               aria-hidden="true"

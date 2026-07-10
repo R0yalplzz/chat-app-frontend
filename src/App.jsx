@@ -8,6 +8,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import ProtectedRoutes from "./component/protectedRoutes";
 import Loader from "./component/loader";
 import { useSelector } from "react-redux";
+import Profile from "./component/profile/index";
 
 // import ProtectedRoutes from "./component/ProtectedRoutes";
 export const GlobalVariableContext = createContext();
@@ -28,6 +29,15 @@ const App = () => {
             element={
               <ProtectedRoutes>
                 <Home />
+              </ProtectedRoutes>
+            }
+          />
+
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoutes>
+                <Profile />
               </ProtectedRoutes>
             }
           />
