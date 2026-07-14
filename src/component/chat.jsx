@@ -24,12 +24,13 @@ function ChatArea({ socket }) {
 
   const selectedUser = selectedChat.members.find((u) => u.id !== user.id);
 
-  const sendMessage = async () => {
+  const sendMessage = async (image) => {
     try {
       const newMessage = {
         chatId: selectedChat.id,
         sender: user.id,
         text: message,
+        image: image,
       };
 
       socket.emit("send-message", {
@@ -109,6 +110,17 @@ function ChatArea({ socket }) {
       user.lastName.at(0).toUpperCase() + user.lastName.slice(1).toLowerCase();
     return fname + " " + lname;
   }
+
+  const sendImage = async (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader(file);
+    reader.readAsDataURL(file);
+
+    reader.onloadend = async () => {
+      sendMessage(reader.result);
+    };
+  };
+
   useEffect(() => {
     getMessages();
     if (selectedChat?.lastMessage?.sender !== user.id) {
@@ -190,7 +202,17 @@ function ChatArea({ socket }) {
                           : "received-message"
                       }
                     >
-                      {msg.text}
+                      <div>{msg.text}</div>
+                      <div>
+                        {msg.image && (
+                          <img
+                            src={msg.image}
+                            alt="image"
+                            height="120"
+                            width="120"
+                          ></img>
+                        )}
+                      </div>
                     </div>
                     <div
                       className="message-timestamp"
@@ -240,6 +262,17 @@ function ChatArea({ socket }) {
                 });
               }}
             />
+            <label for="file">
+              <i className="fa fa-picture-o send-image-btn"></i>
+              <input
+                type="file"
+                id="file"
+                style={{ display: "none" }}
+                accept="image/jpg,image/png,image/jpeg,image/gif"
+                onChange={sendImage}
+              ></input>
+            </label>
+
             <button
               className="fa-regular fa-face-smile send-emoji-btn"
               aria-hidden="true"
@@ -251,7 +284,7 @@ function ChatArea({ socket }) {
             <button
               className="fa fa-paper-plane send-message-btn"
               aria-hidden="true"
-              onClick={sendMessage}
+              onClick={() => sendMessage("")}
             ></button>
           </div>
         </div>

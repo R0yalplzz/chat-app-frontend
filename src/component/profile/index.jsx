@@ -1,10 +1,15 @@
 import moment from "moment";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { uploadProfilePic } from "../../apiCall/users";
+import { hideLoader, showLoader } from "../../features/loaderSlice";
+import { toast } from "react-toastify";
+import { setUser } from "../../features/userSlice";
 
 function Profile() {
   const { user } = useSelector((state) => state.user);
   const [image, setImage] = useState("");
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (user?.profilePic) {
@@ -38,6 +43,24 @@ function Profile() {
       setImage(reader.result);
     };
   };
+
+  const updateProfilePic = async () => {
+    try {
+      dispatch(showLoader());
+      const response = await uploadProfilePic(image);
+      dispatch(hideLoader());
+
+      if (response.success) {
+        toast.success(response.message);
+        dispatch(setUser(response.data));
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      toast.error(err.message);
+      dispatch(hideLoader());
+    }
+  };
   return (
     <div className="profile-page-container">
       <div className="profile-pic-container">
@@ -48,7 +71,7 @@ function Profile() {
             className="user-profile-pic-upload"
           />
         )}
-        {!image &&(
+        {!image && (
           <div className="user-default-profile-avatar">{getInitials()}</div>
         )}
       </div>
@@ -67,6 +90,9 @@ function Profile() {
         </div>
         <div className="select-profile-pic-container">
           <input type="file" onChange={onFileSelect} />
+          <button className="upload-image-btn" onClick={updateProfilePic}>
+            Upload
+          </button>
         </div>
       </div>
     </div>

@@ -17,11 +17,15 @@ function Home() {
       socket.on("online-users", (onlineUsers) => {
         setOnlineUser(onlineUsers);
       });
+
+      socket.on("online-user-update", (onlineUsers) => {
+        setOnlineUser(onlineUsers);
+      });
     }
   }, [user]);
   return (
     <div className="home-page">
-      <Header></Header>
+      <Header socket={socket}></Header>
       <div className="main-content">
         <SideBar socket={socket} onlineUser={onlineUser}></SideBar>
         {selectedChat && <ChatArea socket={socket}></ChatArea>}
