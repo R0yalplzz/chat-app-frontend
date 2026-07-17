@@ -7,6 +7,7 @@ import { clearUnreadMessageCount, getAllChats } from "./../apiCall/chat";
 import moment from "moment";
 import { store } from "../store/store";
 import EmojiPicker from "emoji-picker-react";
+import { setAllChats } from "../features/userSlice";
 
 function ChatArea({ socket }) {
   const dispatch = useDispatch();
@@ -17,6 +18,7 @@ function ChatArea({ socket }) {
   const [allMessages, setAllMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [data, setData] = useState(null);
 
   if (!selectedChat) {
     return <div>Select a chat</div>;
@@ -126,7 +128,7 @@ function ChatArea({ socket }) {
     if (selectedChat?.lastMessage?.sender !== user.id) {
       clearUnreadMessages();
     }
-    socket.on("receive-message", (message) => {
+    socket.off("receive-message").on("receive-message", (message) => {
       const selectedChat = store.getState().user.selectedChat;
       if (selectedChat.id === message.chatId) {
         setAllMessages((prevmsg) => [...prevmsg, message]);
@@ -162,6 +164,7 @@ function ChatArea({ socket }) {
     });
 
     socket.on("started-typing", (data) => {
+      setData(data);
       if (selectedChat.id === data.chatId && data.sender !== user.id) {
         setIsTyping(true);
         setTimeout(() => {
@@ -236,7 +239,10 @@ function ChatArea({ socket }) {
               );
             })}
             <div className="typing-indicator">
-              {isTyping && <i>typing...</i>}
+              {isTyping &&
+                selectedChat?.members.map((m) => m.id).includes(data?.sender) && (
+                  <i>typing...</i>
+                )}
             </div>
           </div>
           {showEmojiPicker && (
@@ -262,7 +268,7 @@ function ChatArea({ socket }) {
                 });
               }}
             />
-            <label for="file">
+            <label htmlFor="file">
               <i className="fa fa-picture-o send-image-btn"></i>
               <input
                 type="file"

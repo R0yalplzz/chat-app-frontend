@@ -97,7 +97,7 @@ function UsersList({ searchKey, socket, onlineUser }) {
   }
 
   useEffect(() => {
-    socket.on("receive-message", (message) => {
+    socket.off("set-message-count").on("set-message-count", (message) => {
       const selectedChat = store.getState().user.selectedChat;
       let allChats = store.getState().user.allChats;
 

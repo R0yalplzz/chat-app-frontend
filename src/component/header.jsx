@@ -31,9 +31,10 @@ function Header({ socket }) {
   }
 
   const logout = () => {
+    socket.disconnect();
+
     localStorage.removeItem("token");
     navigate("/login");
-    socket.emit("user-offline", user.id);
   };
   return (
     <div className="app-header">
@@ -42,7 +43,6 @@ function Header({ socket }) {
         Quick Chat
       </div>
       <div className="app-user-profile">
-        <div className="logged-user-name">{getFullName()}</div>
         {user?.profilePic && (
           <img
             src={user?.profilePic}
@@ -63,6 +63,8 @@ function Header({ socket }) {
             {getInitials() || null}
           </div>
         )}
+        <div className="logged-user-name">{getFullName()}</div>
+
         <button className="logout-button" onClick={logout}>
           <i className="fa fa-power-off"></i>
         </button>

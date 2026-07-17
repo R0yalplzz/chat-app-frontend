@@ -11,18 +11,36 @@ function Home() {
   const [onlineUser, setOnlineUser] = useState([]);
 
   useEffect(() => {
-    if (user) {
+    if (!user) return;
+
+    const handleConnect = () => {
+      console.log("Connected:", socket.id);
+
       socket.emit("join-room", user.id);
       socket.emit("user-login", user.id);
-      socket.on("online-users", (onlineUsers) => {
-        setOnlineUser(onlineUsers);
-      });
+    };
 
-      socket.on("online-user-update", (onlineUsers) => {
-        setOnlineUser(onlineUsers);
-      });
+    const handleUsers = (users) => {
+      setOnlineUser([...users]);
+    };
+
+    socket.on("online-users", handleUsers);
+    socket.on("online-users-updated", handleUsers);
+
+    if (socket.connected) {
+      handleConnect();
+    } else {
+      socket.connect();
+      socket.once("connect", handleConnect);
     }
-  }, [user]);
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("online-users", handleUsers);
+      socket.off("online-users-updated", handleUsers);
+    };
+  }, [user, onlineUser]);
+
   return (
     <div className="home-page">
       <Header socket={socket}></Header>
